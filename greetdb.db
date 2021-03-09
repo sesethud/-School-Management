@@ -1,0 +1,1 @@
+create table if not exists student ( id integer identity, name varchar(50), age int,grade int )

@@ -1,8 +1,11 @@
 
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import spark.ModelAndView;
 import spark.template.handlebars.HandlebarsTemplateEngine;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -20,28 +23,43 @@ public class App {
 
     public static void main(String[] args) {
 
+        String dbDiskURL = "jdbc:h2:file:./greetdb";
+//        String dbMemoryURL = "jdbc:h2:mem:greetdb";
+
+        Jdbi jdbi = Jdbi.create(dbDiskURL, "sa", "");
+
+// get a handle to the database
+        Handle handle = jdbi.open();
+
+// create the table if needed
+        handle.execute("create table if not exists student ( id integer identity, name varchar(50), age int,grade int )");
+
 
         port(getHerokuAssignedPort());
 
+// STUDENT SECTION
 
-        get("/hello", (req, res) -> {
+
+        get("/student", (req, res) -> {
 
             Map<String, Object> map = new HashMap<>();
-            return new ModelAndView(map, "hello.handlebars");
+
+            List<String> nameList=handle.createQuery("select name from student")
+                    .mapTo(String.class)
+                    .list();
+            map.put("names",nameList);
+            return new ModelAndView(map, "student.handlebars");
 
         }, new HandlebarsTemplateEngine());
 
-        post("/hello", (req, res) -> {
+        post("/student", (req, res) -> {
 
             Map<String, Object> map = new HashMap<>();
 
-            // create the greeting message
-            String greeting = "Hello, " + req.queryParams("username");
-
-            // put it in the map which is passed to the template - the value will be merged into the template
-            map.put("greeting", greeting);
-
-            return new ModelAndView(map, "hello.handlebars");
+            handle.execute("insert into student (name,age,grade) values ('Sesethu Dumezweni',12,5)");
+            handle.execute("insert into student (name,age,grade) values ('Phumlani',12,5)");
+            handle.execute("insert into student (name,age,grade) values ('Lubha Dumezweni',12,5)");
+            return new ModelAndView(map, "student.handlebars");
 
         }, new HandlebarsTemplateEngine());
 
