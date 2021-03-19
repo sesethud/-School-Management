@@ -39,6 +39,24 @@ public class App {
 
 // STUDENT SECTION
 
+        get("/tutor", (req, res) -> {
+
+            Map<String, Object> map = new HashMap<>();
+
+
+            return new ModelAndView(map, "tutor.handlebars");
+
+        }, new HandlebarsTemplateEngine());
+
+        get("/intro", (req, res) -> {
+
+            Map<String, Object> map = new HashMap<>();
+
+
+            return new ModelAndView(map, "introscreen.handlebars");
+
+        }, new HandlebarsTemplateEngine());
+
 
         get("/student", (req, res) -> {
 
